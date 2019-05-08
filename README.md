@@ -1,2 +1,12 @@
-# PrinterMapping
-This repository is my work on migrating users from a client-to-IP Based printer directly to a Client mapped to print server during upgrade.
+# Printer Mapping
+These scripts came out of a necessity to reinstall the printer on a client's device during the Windows 7 to Windows 10 migration. When thinking about the best way to do this, I figured that because I had 300+ different IP Based printers that instead of trying to maintain drivers for all those models as packages or applications within ConfigMgr, that I would just stand up a print server and host all the printers from there. In my dumbfound logic, I figured that if I stored all the printers in one location, then I could just map them to the print server and through that mapping, the drivers for that printer would be installed automatically. This would mean I wouldn't have to maintain a mapping within ConfigMgr of all printers, IPs, and drivers for all those printers. I'd only have to focus on one set at the print server level. I am not guaranteeing that any of this at the end is gonna work perfectly. As of 5-7-2019, I haven't even tested this in any kind of deployment scenario. In theory, they should work.
+
+My pre-requisites for this was to identify all the printers that ConfigMgr has inventoried and then use that list to find out all the models of printers and IP addresses of those printers that I had. My first step was to run a powershell to create the ports on the print server for each of the associated IP addresses. Then I found and downloaded all the driver files I thought I may need. I extracted all the files into a single folder hierachy and then used powershell to parse through the folders and install any driver inf files it found into the local driver repository. This made it easier for when the printers were added (which was a manual thing for each printer... Thanks goes to those that took the time to isntall of them...). During the adding of the printers, the share name for each printer was the IP Address. When deployed to a client, they would get the name of the computer, not the IP address as the name, which made it easy for these scripts to work. 
+
+I have two scripts in here... Get-InstalledPrinters.ps1 is ran in full OS before capturing any user data. The script will keep a log of every printer it finds. During the script, it will set a task sequence variable which will allow the second script (Set-InstalledPrinters.ps1) to use that task sequence variable to map the printer during OSD, but after the State Restore. It will append to that log created from the previous script as long as it is ran after all user profiles have been restored.
+
+Again, I want to say that Powershell is not my full time job, just one of the perks and I am very new to them.
+
+Thanks.
+
+John
